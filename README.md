@@ -11,6 +11,7 @@
 * angularjs, requirejs
 * bower, npm, (? grunt / gulp)
 * stylus (for now; maybe)
+* karma / jasmine
 * responsive
 * available offlne
 
