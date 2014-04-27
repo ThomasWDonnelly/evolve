@@ -8,9 +8,11 @@ using System.Web.Http;
 
 namespace Evolve.Api.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class ContentController : ApiController
     {
-        [Route("{type}/{slug?}")]
+        
+        [Route("Content/{type}/{slug?}")]
         public async Task<dynamic> Get(string type, string slug = null)
         {
 

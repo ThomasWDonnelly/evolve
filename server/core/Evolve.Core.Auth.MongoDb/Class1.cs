@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Evolve.Domain
+namespace Evolve.Core.Auth.MongoDb
 {
     public class Class1
     {
