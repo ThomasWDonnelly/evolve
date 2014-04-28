@@ -18,12 +18,12 @@ namespace Evolve.Infrastructure.Auth
 
         public async Task<IUser> FindAsync(UserLoginInfo userLoginInfo)
         {
-            var user = await _userManager.FindAsync(userLoginInfo);
+            var user = (IUser) await _userManager.FindAsync(userLoginInfo);
             return user;
         }
         public async Task<IUser> FindAsync(string userName)
         {
-            var user = await _userManager.FindByNameAsync(userName);
+            var user = (IUser) await _userManager.FindByNameAsync(userName);
             return user;
         }
 

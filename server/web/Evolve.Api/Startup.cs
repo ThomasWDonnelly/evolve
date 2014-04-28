@@ -31,9 +31,28 @@ namespace Evolve.Api
                 routeTemplate: "{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-
             config.Formatters.Remove(config.Formatters.XmlFormatter);
 
+            ConfigureAuth(app, config);
+
+            app.UseNinjectMiddleware(() =>
+            {
+                var kernel = new StandardKernel();
+
+                kernel.Load("Evolve.Infrastructure.*.dll");
+                kernel.Load("Evolve.Core.*.dll");
+
+                _oauthOptions.Provider = kernel.Get<ApplicationOAuthProvider>();
+
+                return kernel;
+            });
+
+
+            app.UseNinjectWebApi(config);
+        }
+
+        private static void ConfigureAuth(IAppBuilder app, HttpConfiguration config)
+        {
             _oauthOptions = new OAuthAuthorizationServerOptions
             {
                 TokenEndpointPath = new PathString("/Token"),
@@ -45,29 +64,11 @@ namespace Evolve.Api
 
             config.Filters.Add(new HostAuthenticationFilter(_oauthOptions.AuthenticationType));
 
-            app.UseCookieAuthentication(new CookieAuthenticationOptions());
+            app.UseCookieAuthentication(new CookieAuthenticationOptions( ));
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             app.UseOAuthBearerTokens(_oauthOptions);
             app.UseGoogleAuthentication();
-
-            app
-                .UseNinjectMiddleware(CreateKernel)
-                .UseNinjectWebApi(config);
-        }
-
-        private static IKernel CreateKernel()
-        {
-            Debugger.Launch();
-
-            var kernel = new StandardKernel();
-
-            kernel.Load("Evolve.Infrastructure.*.dll");
-            kernel.Load("Evolve.Core.*.dll");
-
-            _oauthOptions.Provider = kernel.Get<ApplicationOAuthProvider>();
-
-            return kernel;
         }
     }
 }
