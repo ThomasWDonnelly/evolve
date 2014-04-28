@@ -17,9 +17,9 @@ namespace Evolve.Core.Auth.Middleware
 
         public ApplicationOAuthProvider(IOAuthConfigurationProvider config, IUserManager userManager)
         {
-            if (config.ClientId == null)
+            if (config == null)
             {
-                throw new ArgumentNullException("publicClientId");
+                throw new ArgumentNullException("config");
             }
 
             if (userManager == null)

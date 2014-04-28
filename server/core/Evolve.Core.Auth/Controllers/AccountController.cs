@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using Evolve.Core.Auth.Middleware;
+using Evolve.Core.Auth.Model;
 using Evolve.Core.Auth.Providers;
 using Evolve.Domain.Auth;
 using Evolve.Domain.Auth.Model;
@@ -25,6 +26,11 @@ namespace Evolve.Core.Auth.Controllers
         private readonly IUserManager _userManager;
         private readonly IIdentityUserFactory _userFactory;
         private readonly IOAuthConfigurationProvider _oauthConfigurationProvider;
+
+        private IAuthenticationManager Authentication
+        {
+            get { return Request.GetOwinContext().Authentication; }
+        }
 
         public AccountController(IUserManager userManager, IIdentityUserFactory userFactory, 
             IOAuthConfigurationProvider oauthConfigurationProvider)
@@ -126,11 +132,7 @@ namespace Evolve.Core.Auth.Controllers
             }
             else
             {
-                var claims = externalLogin.GetClaims();
                 var identityUser = _userFactory.CreateIIdentityUser(externalLogin.UserName);
-                {
-                    // Id = ObjectId.GenerateNewId().ToString(),  
-                };
                 identityUser.Logins.Add(new UserLoginInfo(externalLogin.LoginProvider, externalLogin.ProviderKey));
                 identityUser.Roles.Add("admin");
                 
@@ -151,68 +153,6 @@ namespace Evolve.Core.Auth.Controllers
             return Ok();
         }
 
-
-
-        private IAuthenticationManager Authentication
-        {
-            get { return Request.GetOwinContext().Authentication; }
-        }
-
-        private class ExternalLoginData
-        {
-            public string LoginProvider { get; set; }
-            public string ProviderKey { get; set; }
-            public string UserName { get; set; }
-
-            public IEnumerable<Claim> GetClaims()
-            {
-                IList<Claim> claims = new List<Claim>();
-                claims.Add(new Claim(ClaimTypes.NameIdentifier, ProviderKey, null, LoginProvider));
-
-                if (UserName != null)
-                {
-                    claims.Add(new Claim(ClaimTypes.Name, UserName, null, LoginProvider));
-                }
-
-
-
-                return claims;
-            }
-
-            public static ExternalLoginData FromIdentity(ClaimsIdentity identity)
-            {
-                if (identity == null)
-                {
-                    return null;
-                }
-
-                var providerKeyClaim = identity.FindFirst(ClaimTypes.NameIdentifier);
-
-                if (providerKeyClaim == null || String.IsNullOrEmpty(providerKeyClaim.Issuer)
-                    || String.IsNullOrEmpty(providerKeyClaim.Value))
-                {
-                    return null;
-                }
-
-                if (providerKeyClaim.Issuer == ClaimsIdentity.DefaultIssuer)
-                {
-                    return null;
-                }
-
-                return new ExternalLoginData
-                {
-                    LoginProvider = providerKeyClaim.Issuer,
-                    ProviderKey = providerKeyClaim.Value,
-                    UserName = identity.FindFirstValue(ClaimTypes.Name)
-                };
-            }
-        }
-
-
-        private static class RandomOAuthStateGenerator
-        {
-        }
-
-
+        
     }
 }

@@ -2,7 +2,6 @@
 using Evolve.Domain.Auth.Model;
 using Evolve.Infrastructure.Auth.Factory;
 using Evolve.Infrastructure.Auth.Provider;
-using Evolve.Infrastructure.Auth.Providers;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OAuth;
@@ -15,7 +14,6 @@ namespace Evolve.Infrastructure.Auth
     {
         public override void Load()
         {
-
             Bind<IOAuthConfigurationProvider>().ToConstructor<OAuthConfigurationProvider>(
                 ctor => new OAuthConfigurationProvider("self"));
             Bind<IUserManager>().To<UserManager>();

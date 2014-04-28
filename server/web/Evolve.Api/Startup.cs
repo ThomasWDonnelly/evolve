@@ -21,7 +21,7 @@ namespace Evolve.Api
 {
     public class Startup
     {
-        private static OAuthAuthorizationServerOptions oauthOptions;
+        private static OAuthAuthorizationServerOptions _oauthOptions;
         public void Configuration(IAppBuilder app)
         {
             var config = new HttpConfiguration();
@@ -34,7 +34,7 @@ namespace Evolve.Api
 
             config.Formatters.Remove(config.Formatters.XmlFormatter);
 
-            oauthOptions = new OAuthAuthorizationServerOptions
+            _oauthOptions = new OAuthAuthorizationServerOptions
             {
                 TokenEndpointPath = new PathString("/Token"),
                 AuthorizeEndpointPath = new PathString("/Account/ExternalLogin"),
@@ -43,10 +43,12 @@ namespace Evolve.Api
                 AuthenticationMode = AuthenticationMode.Passive
             };
 
+            config.Filters.Add(new HostAuthenticationFilter(_oauthOptions.AuthenticationType));
+
             app.UseCookieAuthentication(new CookieAuthenticationOptions());
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
-            app.UseOAuthBearerTokens(oauthOptions);
+            app.UseOAuthBearerTokens(_oauthOptions);
             app.UseGoogleAuthentication();
 
             app
@@ -63,7 +65,7 @@ namespace Evolve.Api
             kernel.Load("Evolve.Infrastructure.*.dll");
             kernel.Load("Evolve.Core.*.dll");
 
-            oauthOptions.Provider = kernel.Get<ApplicationOAuthProvider>();
+            _oauthOptions.Provider = kernel.Get<ApplicationOAuthProvider>();
 
             return kernel;
         }

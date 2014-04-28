@@ -8,11 +8,6 @@ using System.Threading.Tasks;
 
 namespace Evolve.Infrastructure.Auth
 {
-    public class MongoIdentityClaim : IdentityUserClaim, IIdentityUserClaim
-    {
-
-    }
-
     public class MongoIdentityUser : IdentityUser, IIdentityUser
     {
         public MongoIdentityUser(string userName) : base(userName)

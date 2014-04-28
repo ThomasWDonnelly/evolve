@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace Evolve.Core.Auth.Middleware
+namespace Evolve.Core.Auth.Model
 {
     public class ChallengeResult : IHttpActionResult
     {
@@ -21,8 +21,11 @@ namespace Evolve.Core.Auth.Middleware
         {
             Request.GetOwinContext().Authentication.Challenge(LoginProvider);
 
-            var response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            response.RequestMessage = Request;
+            var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+            {
+                RequestMessage = Request
+            };
+
             return Task.FromResult(response);
         }
     }

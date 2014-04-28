@@ -1,12 +1,10 @@
-﻿using Evolve.Domain.Auth.Model;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
+using Evolve.Domain.Auth.Model;
 using Microsoft.AspNet.Identity;
 using MongoDB.AspNet.Identity;
-using Ninject;
-using Ninject.Activation;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
-namespace Evolve.Infrastructure.Auth.Providers
+namespace Evolve.Infrastructure.Auth
 {
     public class UserManager : IUserManager
     {

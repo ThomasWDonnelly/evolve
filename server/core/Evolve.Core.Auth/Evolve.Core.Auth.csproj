@@ -100,8 +100,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Middleware\ApplicationOAuthProvider.cs" />
-    <Compile Include="Middleware\ChallengeResult.cs" />
+    <Compile Include="Model\ExternalLoginData.cs" />
+    <Compile Include="Providers\ApplicationOAuthProvider.cs" />
+    <Compile Include="Model\ChallengeResult.cs" />
     <Compile Include="Providers\RandomOAuthStateProvider.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Controllers\AccountController.cs" />
