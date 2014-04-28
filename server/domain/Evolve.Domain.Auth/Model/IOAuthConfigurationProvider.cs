@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security.OAuth;
 
 namespace Evolve.Domain.Auth.Model
 {
-    public interface IIdentityUserFactory
+    public interface IOAuthConfigurationProvider
     {
-        IIdentityUser CreateIIdentityUser(string userName);
+        string ClientId { get; }
     }
 }

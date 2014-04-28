@@ -7,10 +7,16 @@ using Microsoft.AspNet.Identity;
 
 namespace Evolve.Domain.Auth.Model
 {
-    public interface IIdentityUser : IUser<string>
+    public interface IIdentityUser : IUser
     {
-        List<UserLoginInfo> Logins { get; }
-
         List<string> Roles { get; }
+        /// <summary>
+        /// Gets the logins.
+        /// </summary>
+        /// <value>The logins.</value>
+        List<UserLoginInfo> Logins { get; }
     }
+
+
+    
 }

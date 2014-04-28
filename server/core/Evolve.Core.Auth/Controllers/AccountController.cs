@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using Evolve.Api.Middleware;
 using Evolve.Core.Auth.Middleware;
 using Evolve.Core.Auth.Providers;
 using Evolve.Domain.Auth;
@@ -23,13 +22,16 @@ namespace Evolve.Core.Auth.Controllers
     [RoutePrefix("Account")]
     public class AccountController : ApiController
     {
-        private readonly UserManager<IIdentityUser> _userManager;
+        private readonly IUserManager _userManager;
         private readonly IIdentityUserFactory _userFactory;
+        private readonly IOAuthConfigurationProvider _oauthConfigurationProvider;
 
-        public AccountController(UserManager<IIdentityUser> userManager, IIdentityUserFactory userFactory)
+        public AccountController(IUserManager userManager, IIdentityUserFactory userFactory, 
+            IOAuthConfigurationProvider oauthConfigurationProvider)
         {
             _userManager = userManager;
             _userFactory = userFactory;
+            _oauthConfigurationProvider = oauthConfigurationProvider;
         }
 
         [AllowAnonymous]
@@ -57,7 +59,7 @@ namespace Evolve.Core.Auth.Controllers
                 {
                     provider = description.AuthenticationType,
                     response_type = "token",
-                    client_id = Startup.PublicClientId,
+                    client_id = _oauthConfigurationProvider.ClientId,
                     redirect_uri = new Uri(Request.RequestUri, returnUrl).AbsoluteUri,
                     state = state
                 })
@@ -127,14 +129,13 @@ namespace Evolve.Core.Auth.Controllers
                 var claims = externalLogin.GetClaims();
                 var identityUser = _userFactory.CreateIIdentityUser(externalLogin.UserName);
                 {
-                    // Id = ObjectId.GenerateNewId().ToString(),
-                    
+                    // Id = ObjectId.GenerateNewId().ToString(),  
                 };
-
                 identityUser.Logins.Add(new UserLoginInfo(externalLogin.LoginProvider, externalLogin.ProviderKey));
                 identityUser.Roles.Add("admin");
-
+                
                 var result = await _userManager.CreateAsync(identityUser);
+
                 if (!result.Succeeded)
                 {
                     return result;

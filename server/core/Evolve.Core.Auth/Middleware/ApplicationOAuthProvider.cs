@@ -13,44 +13,42 @@ namespace Evolve.Core.Auth.Middleware
     public class ApplicationOAuthProvider : OAuthAuthorizationServerProvider
     {
         private readonly string _publicClientId;
-        private readonly Func<UserManager<IIdentityUser>> _userManagerFactory;
+        private readonly IUserManager _userManager;
 
-        public ApplicationOAuthProvider(string publicClientId, Func<UserManager<IIdentityUser>> userManagerFactory)
+        public ApplicationOAuthProvider(IOAuthConfigurationProvider config, IUserManager userManager)
         {
-            if (publicClientId == null)
+            if (config.ClientId == null)
             {
                 throw new ArgumentNullException("publicClientId");
             }
 
-            if (userManagerFactory == null)
+            if (userManager == null)
             {
-                throw new ArgumentNullException("userManagerFactory");
+                throw new ArgumentNullException("userManager");
             }
 
-            _publicClientId = publicClientId;
-            _userManagerFactory = userManagerFactory;
+            _publicClientId = config.ClientId;
+            _userManager = userManager;
         }
 
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
-            using (var userManager = _userManagerFactory())
+            var user = await _userManager.FindAsync(context.UserName);
+
+            if (user == null)
             {
-                var user = await userManager.FindAsync(context.UserName, context.Password);
-
-                if (user == null)
-                {
-                    context.SetError("invalid_grant", "The user name or password is incorrect.");
-                    return;
-                }
-
-                var oAuthIdentity = await userManager.CreateIdentityAsync(user, context.Options.AuthenticationType);
-                var cookiesIdentity = await userManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
-                var properties = CreateProperties(user.UserName);
-                var ticket = new AuthenticationTicket(oAuthIdentity, properties);
-
-                context.Validated(ticket);
-                context.Request.Context.Authentication.SignIn(cookiesIdentity);
+                context.SetError("invalid_grant", "The user name or password is incorrect.");
+                return;
             }
+
+            var oAuthIdentity = await _userManager.CreateIdentityAsync(user, context.Options.AuthenticationType);
+            var cookiesIdentity = await _userManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
+            var properties = CreateProperties(user.UserName);
+            var ticket = new AuthenticationTicket(oAuthIdentity, properties);
+
+            context.Validated(ticket);
+            context.Request.Context.Authentication.SignIn(cookiesIdentity);
+
         }
 
         public override Task TokenEndpoint(OAuthTokenEndpointContext context)

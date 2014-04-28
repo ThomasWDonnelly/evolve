@@ -1,26 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Evolve.Domain.Auth;
 using Evolve.Domain.Auth.Model;
+using Evolve.Infrastructure.Auth.Factory;
+using Evolve.Infrastructure.Auth.Provider;
 using Evolve.Infrastructure.Auth.Providers;
-using Microsoft.AspNet.Identity;
-using MongoDB.AspNet.Identity;
+using Microsoft.Owin;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.OAuth;
 using Ninject;
-using Ninject.Activation;
-using Ninject.Extensions.Factory;
 using Ninject.Modules;
 
 namespace Evolve.Infrastructure.Auth
 {
-    public class MongoAuthModule : NinjectModule 
+    public class MongoAuthModule : NinjectModule
     {
         public override void Load()
         {
-            Bind<IIdentityUserFactory>().ToFactory();
-            Bind(typeof(UserManager<>)).ToProvider<UserManagerProvider>();
+
+            Bind<IOAuthConfigurationProvider>().ToConstructor<OAuthConfigurationProvider>(
+                ctor => new OAuthConfigurationProvider("self"));
+            Bind<IUserManager>().To<UserManager>();
+            Bind<IIdentityUserFactory>().To<IdentityUserFactory>();
         }
+
     }
 }
